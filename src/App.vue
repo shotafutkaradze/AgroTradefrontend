@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import {
   ArrowLeft, ArrowRight, Check, ChevronDown, ChevronRight, CircleUserRound, CreditCard,
   Clock3, Heart, Leaf, MapPin, Menu, Minus, PackageCheck, Phone, Plus,
@@ -34,6 +34,7 @@ const selectedBrand = ref('ყველა')
 const onlyInStock = ref(false)
 const onlyDiscounted = ref(false)
 const sortBy = ref('popular')
+const applyingHistoryState = ref(false)
 
 const categories = [
   { name: 'მოტობლოკები', image: 'https://images.unsplash.com/photo-1592982537447-6f2a6a0c7c0c?auto=format&fit=crop&w=700&q=80', count: 24 },
@@ -139,6 +140,75 @@ function showProduct(product) {
   detailQty.value = 1
 }
 
+function currentPageState() {
+  if (selectedProduct.value) return { page: 'product', productId: selectedProduct.value.id }
+  if (checkoutStep.value) return { page: 'checkout', step: checkoutStep.value, orderPlaced: orderPlaced.value }
+  if (cartPage.value) return { page: 'cart' }
+  if (productsPage.value) return { page: 'products', category: activeCategory.value }
+  if (adminPage.value) return { page: 'admin' }
+  return { page: 'home' }
+}
+
+function rememberPage(replace = false) {
+  if (applyingHistoryState.value) return
+  const state = currentPageState()
+  const method = replace ? 'replaceState' : 'pushState'
+  window.history[method](state, '', window.location.pathname + window.location.search)
+}
+
+function applyPageState(state = { page: 'home' }) {
+  applyingHistoryState.value = true
+  selectedProduct.value = null
+  productsPage.value = false
+  cartPage.value = false
+  checkoutStep.value = 0
+  adminPage.value = false
+  comparePage.value = false
+  orderPlaced.value = false
+
+  if (state.page === 'product') {
+    selectedProduct.value = allProducts.value.find(product => product.id === state.productId) || null
+    detailQty.value = 1
+  } else if (state.page === 'products') {
+    activeCategory.value = state.category || 'ყველა'
+    productsPage.value = true
+  } else if (state.page === 'cart') {
+    cartPage.value = true
+  } else if (state.page === 'checkout') {
+    checkoutStep.value = state.step || 2
+    orderPlaced.value = Boolean(state.orderPlaced)
+  } else if (state.page === 'admin') {
+    adminPage.value = true
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  window.setTimeout(() => applyingHistoryState.value = false, 0)
+}
+
+function handleBrowserBack(event) {
+  applyPageState(event.state || { page: 'home' })
+}
+
+onMounted(() => {
+  rememberPage(true)
+  window.addEventListener('popstate', handleBrowserBack)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('popstate', handleBrowserBack)
+})
+
+function openProductPage(product) {
+  showProduct(product)
+  productsPage.value = false
+  cartPage.value = false
+  checkoutStep.value = 0
+  adminPage.value = false
+  comparePage.value = false
+  rememberPage()
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
 function openSearchProduct(product) {
   showProduct(product)
   productsPage.value = false
@@ -147,6 +217,7 @@ function openSearchProduct(product) {
   adminPage.value = false
   comparePage.value = false
   searchFocused.value = false
+  rememberPage()
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -161,6 +232,7 @@ function submitSearch() {
   activeCategory.value = 'ყველა'
   visibleCount.value = 12
   searchFocused.value = false
+  rememberPage()
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -198,17 +270,21 @@ function openCart() {
   productsPage.value = false
   comparePage.value = false
   cartPage.value = true
+  checkoutStep.value = 0
+  rememberPage()
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 function startCheckout() {
   cartPage.value = false
   checkoutStep.value = 2
+  rememberPage()
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 function nextToPayment() {
   checkoutStep.value = 3
+  rememberPage()
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -219,6 +295,7 @@ function openAdmin() {
   checkoutStep.value = 0
   comparePage.value = false
   adminPage.value = true
+  rememberPage()
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -230,6 +307,7 @@ function goHome() {
   adminPage.value = false
   comparePage.value = false
   orderPlaced.value = false
+  rememberPage()
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -244,11 +322,36 @@ function openProductsPage(category = activeCategory.value) {
   comparePage.value = false
   catalogOpen.value = false
   mobileMenu.value = false
+  rememberPage()
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 function chooseCategory(category) {
   openProductsPage(category)
+}
+
+function backToProducts() {
+  selectedProduct.value = null
+  productsPage.value = true
+  checkoutStep.value = 0
+  cartPage.value = false
+  adminPage.value = false
+  comparePage.value = false
+  rememberPage()
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function backToCheckoutDetails() {
+  checkoutStep.value = 2
+  orderPlaced.value = false
+  rememberPage()
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function placeOrder() {
+  orderPlaced.value = true
+  rememberPage()
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 </script>
 
@@ -314,10 +417,10 @@ function chooseCategory(category) {
         <div class="section-head"><div><span class="eyebrow">ხშირად ყიდულობენ</span><h2>ყველაზე მოთხოვნადი ტექნიკა</h2><small class="result-count">სწრაფი არჩევანი სეზონური სამუშაოებისთვის</small></div><a href="#" @click.prevent="openProductsPage('ყველა')">სრული კატალოგი <ArrowRight :size="18" /></a></div>
         <div class="home-product-grid">
           <article v-for="product in bestSellerProducts" :key="product.id" class="home-product-card">
-            <div class="home-product-media" @click="showProduct(product)"><span class="badge">{{ product.badge }}</span><img :src="product.image" :alt="product.name"></div>
+            <div class="home-product-media" @click="openProductPage(product)"><span class="badge">{{ product.badge }}</span><img :src="product.image" :alt="product.name"></div>
             <div class="home-product-info">
               <small>{{ product.category }}</small>
-              <h3 @click="showProduct(product)">{{ product.name }}</h3>
+              <h3 @click="openProductPage(product)">{{ product.name }}</h3>
               <div class="rating"><Star :size="15" fill="currentColor" /> {{ product.rating }} <span>({{ product.reviews }})</span></div>
               <div class="home-product-bottom"><strong>{{ product.price.toLocaleString() }} ₾</strong><button @click="addToCart(product)"><ShoppingBag :size="18" /> დამატება</button></div>
             </div>
@@ -343,8 +446,8 @@ function chooseCategory(category) {
           <div class="tabs"><button v-for="cat in ['ყველა','მოტობლოკები','გენერატორები','ბენზოხერხები']" :class="{active: activeCategory === cat}" @click="activeCategory = cat">{{ cat }}</button></div>
           <div v-if="filteredProducts.length" class="product-grid">
             <article v-for="product in displayedProducts" :key="product.id" class="product-card">
-              <div class="product-media" @click="showProduct(product)"><span class="badge">{{ product.badge }}</span><button class="wish" :class="{active: wishlist.has(product.id)}" @click.stop="toggleWishlist(product.id)"><Heart :size="19" /></button><img :src="product.image" :alt="product.name" /></div>
-              <div class="product-info"><small>{{ product.category }}</small><h3 @click="showProduct(product)">{{ product.name }}</h3><div class="rating"><Star :size="15" fill="currentColor" /> {{ product.rating }} <span>({{ product.reviews }})</span></div><div class="card-trust"><span>განვადება</span><span>გარანტია</span></div><div class="price-row"><div><strong>{{ product.price.toLocaleString() }} ₾</strong><del v-if="product.oldPrice">{{ product.oldPrice.toLocaleString() }} ₾</del></div><button @click="addToCart(product)"><ShoppingBag :size="19" /></button></div><button class="compare-toggle" :class="{active: compareIds.includes(product.id)}" @click="toggleCompare(product)"><Scale :size="16" /> {{ compareIds.includes(product.id) ? 'შედარებიდან მოხსნა' : 'შედარება' }}</button><p class="stock"><Check :size="14" /> მარაგშია</p></div>
+              <div class="product-media" @click="openProductPage(product)"><span class="badge">{{ product.badge }}</span><button class="wish" :class="{active: wishlist.has(product.id)}" @click.stop="toggleWishlist(product.id)"><Heart :size="19" /></button><img :src="product.image" :alt="product.name" /></div>
+              <div class="product-info"><small>{{ product.category }}</small><h3 @click="openProductPage(product)">{{ product.name }}</h3><div class="rating"><Star :size="15" fill="currentColor" /> {{ product.rating }} <span>({{ product.reviews }})</span></div><div class="card-trust"><span>განვადება</span><span>გარანტია</span></div><div class="price-row"><div><strong>{{ product.price.toLocaleString() }} ₾</strong><del v-if="product.oldPrice">{{ product.oldPrice.toLocaleString() }} ₾</del></div><button @click="addToCart(product)"><ShoppingBag :size="19" /></button></div><button class="compare-toggle" :class="{active: compareIds.includes(product.id)}" @click="toggleCompare(product)"><Scale :size="16" /> {{ compareIds.includes(product.id) ? 'შედარებიდან მოხსნა' : 'შედარება' }}</button><p class="stock"><Check :size="14" /> მარაგშია</p></div>
             </article>
           </div>
           <div v-if="visibleCount < filteredProducts.length" class="load-more"><p>ნაჩვენებია {{ visibleCount }} / {{ filteredProducts.length }} პროდუქტი</p><div><span :style="{width:(visibleCount/filteredProducts.length*100)+'%'}"></span></div><button @click="visibleCount += 12">მეტის ჩვენება <Plus :size="17" /></button></div>
@@ -432,8 +535,8 @@ function chooseCategory(category) {
               <div class="tabs"><button v-for="cat in ['ყველა','ტრაქტორები','მოტობლოკები','გენერატორები','ბენზოხერხები','ტუმბოები']" :class="{active: activeCategory === cat}" @click="activeCategory = cat; visibleCount = 12">{{ cat }}</button></div>
               <div v-if="filteredProducts.length" class="product-grid">
                 <article v-for="product in displayedProducts" :key="product.id" class="product-card">
-                  <div class="product-media" @click="showProduct(product); productsPage = false"><span class="badge">{{ product.badge }}</span><button class="wish" :class="{active: wishlist.has(product.id)}" @click.stop="toggleWishlist(product.id)"><Heart :size="19" /></button><img :src="product.image" :alt="product.name" /></div>
-                  <div class="product-info"><small>{{ product.category }}</small><h3 @click="showProduct(product); productsPage = false">{{ product.name }}</h3><div class="rating"><Star :size="15" fill="currentColor" /> {{ product.rating }} <span>({{ product.reviews }})</span></div><div class="card-trust"><span>განვადება</span><span>გარანტია</span></div><div class="price-row"><div><strong>{{ product.price.toLocaleString() }} ₾</strong><del v-if="product.oldPrice">{{ product.oldPrice.toLocaleString() }} ₾</del></div><button @click="addToCart(product)"><ShoppingBag :size="19" /></button></div><button class="compare-toggle" :class="{active: compareIds.includes(product.id)}" @click="toggleCompare(product)"><Scale :size="16" /> {{ compareIds.includes(product.id) ? 'შედარებიდან მოხსნა' : 'შედარება' }}</button><p class="stock"><Check :size="14" /> მარაგშია</p></div>
+                  <div class="product-media" @click="openProductPage(product)"><span class="badge">{{ product.badge }}</span><button class="wish" :class="{active: wishlist.has(product.id)}" @click.stop="toggleWishlist(product.id)"><Heart :size="19" /></button><img :src="product.image" :alt="product.name" /></div>
+                  <div class="product-info"><small>{{ product.category }}</small><h3 @click="openProductPage(product)">{{ product.name }}</h3><div class="rating"><Star :size="15" fill="currentColor" /> {{ product.rating }} <span>({{ product.reviews }})</span></div><div class="card-trust"><span>განვადება</span><span>გარანტია</span></div><div class="price-row"><div><strong>{{ product.price.toLocaleString() }} ₾</strong><del v-if="product.oldPrice">{{ product.oldPrice.toLocaleString() }} ₾</del></div><button @click="addToCart(product)"><ShoppingBag :size="19" /></button></div><button class="compare-toggle" :class="{active: compareIds.includes(product.id)}" @click="toggleCompare(product)"><Scale :size="16" /> {{ compareIds.includes(product.id) ? 'შედარებიდან მოხსნა' : 'შედარება' }}</button><p class="stock"><Check :size="14" /> მარაგშია</p></div>
                 </article>
               </div>
               <div v-if="visibleCount < filteredProducts.length" class="load-more"><p>ნაჩვენებია {{ visibleCount }} / {{ filteredProducts.length }} პროდუქტი</p><div><span :style="{width:(visibleCount/filteredProducts.length*100)+'%'}"></span></div><button @click="visibleCount += 12">მეტის ჩვენება <Plus :size="17" /></button></div>
@@ -445,7 +548,7 @@ function chooseCategory(category) {
     </main>
 
     <main v-else-if="selectedProduct" class="product-page wrap">
-      <button class="back-link" @click="selectedProduct = null; productsPage = true"><ArrowLeft :size="18" /> პროდუქტებზე დაბრუნება</button>
+      <button class="back-link" @click="backToProducts"><ArrowLeft :size="18" /> პროდუქტებზე დაბრუნება</button>
       <div class="breadcrumbs">მთავარი <ChevronRight :size="14" /> {{ selectedProduct.category }} <ChevronRight :size="14" /> {{ selectedProduct.name }}</div>
       <section class="product-detail">
         <div class="gallery"><div class="thumbs"><button v-for="n in 3" :class="{active:n===1}" @click="zoomOpen=true"><img :src="selectedProduct.image" /></button></div><div class="main-image zoomable" @click="zoomOpen=true"><span class="badge">{{ selectedProduct.badge }}</span><span class="zoom-hint">⌕ ფოტოს გადიდება</span><img :src="selectedProduct.image" :alt="selectedProduct.name" /></div></div>
@@ -454,7 +557,7 @@ function chooseCategory(category) {
       <section v-if="relatedProducts.length" class="related-products">
         <div class="section-head"><div><span class="eyebrow">მსგავსი პროდუქტები</span><h2>ამავე კატეგორიიდან</h2></div></div>
         <div class="related-grid">
-          <article v-for="product in relatedProducts" :key="product.id" @click="showProduct(product)">
+          <article v-for="product in relatedProducts" :key="product.id" @click="openProductPage(product)">
             <img :src="product.image" :alt="product.name">
             <span>{{ product.category }}</span>
             <strong>{{ product.name }}</strong>
@@ -487,7 +590,7 @@ function chooseCategory(category) {
 
     <main v-else-if="checkoutStep === 2" class="checkout-page wrap"><div class="checkout-page-head"><button class="back-link" @click="openCart"><ArrowLeft :size="18" /> კალათაში დაბრუნება</button><div class="checkout-steps"><span><b>1</b> კალათა</span><i></i><span class="active"><b>2</b> მონაცემები</span><i></i><span><b>3</b> გადახდა</span></div></div><div class="checkout-grid"><section class="checkout-form-card"><div class="form-heading"><b>01</b><div><h1>საკონტაქტო ინფორმაცია</h1><p>შეკვეთის დასადასტურებლად</p></div></div><div class="form-grid"><label><span>სახელი *</span><input value="გიორგი"></label><label><span>გვარი *</span><input value="ბერიძე"></label><label><span>ტელეფონი *</span><input value="+995 555 12 34 56"></label><label><span>ელფოსტა</span><input value="giorgi@example.com"></label></div><div class="form-heading second"><b>02</b><div><h1>მიწოდების მისამართი</h1><p>სად მოგაწოდოთ შეკვეთა?</p></div></div><div class="delivery-tabs"><button :class="{active:deliveryMethod==='courier'}" @click="deliveryMethod='courier'"><Truck :size="17" /> კურიერით</button><button :class="{active:deliveryMethod==='pickup'}" @click="deliveryMethod='pickup'"><MapPin :size="17" /> მაღაზიიდან გატანა</button></div><div v-if="deliveryMethod==='pickup'" class="branch-options"><label><input type="radio" name="branch" checked><span><strong>თბილისი</strong><small>წერეთლის გამზ. N147</small></span></label><label><input type="radio" name="branch"><span><strong>ოკამი</strong><small>მე-40 კილომეტრი</small></span></label><label><input type="radio" name="branch"><span><strong>ზესტაფონი</strong><small>რუსთაველის ქ. N60</small></span></label></div><div class="form-grid"><label><span>ქალაქი / სოფელი *</span><input value="თბილისი" placeholder="ქალაქი ან სოფელი"></label><label><span>მისამართი *</span><input value="ჭავჭავაძის გამზირი 12"></label><label class="full"><span>შენიშვნა</span><textarea placeholder="დამატებითი ინფორმაცია"></textarea></label></div><button class="checkout-button wide" @click="nextToPayment">გადახდაზე გადასვლა <ArrowRight :size="19" /></button></section><aside class="mini-summary"><h2>შენი შეკვეთა</h2><div v-for="item in cartItems" class="mini-item"><img :src="item.image"><span><strong>{{item.name}}</strong><small>{{item.qty}} × {{item.price.toLocaleString()}} ₾</small></span></div><div class="summary-total"><span>სულ</span><strong>{{cartSubtotal.toLocaleString()}} ₾</strong></div></aside></div></main>
 
-    <main v-else-if="checkoutStep === 3" class="checkout-page wrap"><div v-if="!orderPlaced"><div class="checkout-page-head"><button class="back-link" @click="checkoutStep=2"><ArrowLeft :size="18" /> მონაცემებზე დაბრუნება</button><div class="checkout-steps"><span><b>1</b> კალათა</span><i></i><span><b>2</b> მონაცემები</span><i></i><span class="active"><b>3</b> გადახდა</span></div></div><div class="checkout-grid"><section class="checkout-form-card"><div class="form-heading"><b>03</b><div><h1>გადახდის მეთოდი</h1><p>აირჩიე სასურველი ბანკი</p></div></div><div class="payment-options checkout-payments"><label v-for="m in [{id:'bog-installment',logo:'BOG',cls:'bog',name:'BOG განვადება',sub:'3–48 თვე'},{id:'bog-parts',logo:'BOG',cls:'bog',name:'BOG ნაწილ-ნაწილ',sub:'4 თანაბარი გადახდა'},{id:'tbc',logo:'TBC',cls:'tbc',name:'TBC განვადება',sub:'მოქნილი პირობები'},{id:'liberty',logo:'L',cls:'liberty',name:'Liberty გადახდა',sub:'უსაფრთხო გადახდა'}]" :class="{selected:paymentMethod===m.id}"><input v-model="paymentMethod" type="radio" :value="m.id"><span class="bank-logo" :class="m.cls">{{m.logo}}</span><span><strong>{{m.name}}</strong><small>{{m.sub}}</small></span><i></i></label></div><div class="demo-notice"><ShieldCheck /><p><strong>დემო რეჟიმი</strong><br>რეალური საბანკო ოპერაცია არ შესრულდება.</p></div><button class="checkout-button wide" @click="orderPlaced=true">შეკვეთის დადასტურება — {{cartSubtotal.toLocaleString()}} ₾</button></section><aside class="mini-summary"><h2>მიწოდება</h2><p>გიორგი ბერიძე<br>+995 555 12 34 56<br>თბილისი, ჭავჭავაძის გამზირი 12</p><div class="summary-total"><span>სულ</span><strong>{{cartSubtotal.toLocaleString()}} ₾</strong></div></aside></div></div><div v-else class="success-card"><span><Check /></span><small>შეკვეთა მიღებულია</small><h1>მადლობა შენაძენისთვის!</h1><p>შეკვეთის ნომერია <strong>#AT-2026-1048</strong></p><button class="primary-btn" @click="goHome">მთავარ გვერდზე დაბრუნება</button></div></main>
+    <main v-else-if="checkoutStep === 3" class="checkout-page wrap"><div v-if="!orderPlaced"><div class="checkout-page-head"><button class="back-link" @click="backToCheckoutDetails"><ArrowLeft :size="18" /> მონაცემებზე დაბრუნება</button><div class="checkout-steps"><span><b>1</b> კალათა</span><i></i><span><b>2</b> მონაცემები</span><i></i><span class="active"><b>3</b> გადახდა</span></div></div><div class="checkout-grid"><section class="checkout-form-card"><div class="form-heading"><b>03</b><div><h1>გადახდის მეთოდი</h1><p>აირჩიე სასურველი ბანკი</p></div></div><div class="payment-options checkout-payments"><label v-for="m in [{id:'bog-installment',logo:'BOG',cls:'bog',name:'BOG განვადება',sub:'3–48 თვე'},{id:'bog-parts',logo:'BOG',cls:'bog',name:'BOG ნაწილ-ნაწილ',sub:'4 თანაბარი გადახდა'},{id:'tbc',logo:'TBC',cls:'tbc',name:'TBC განვადება',sub:'მოქნილი პირობები'},{id:'liberty',logo:'L',cls:'liberty',name:'Liberty გადახდა',sub:'უსაფრთხო გადახდა'}]" :class="{selected:paymentMethod===m.id}"><input v-model="paymentMethod" type="radio" :value="m.id"><span class="bank-logo" :class="m.cls">{{m.logo}}</span><span><strong>{{m.name}}</strong><small>{{m.sub}}</small></span><i></i></label></div><div class="demo-notice"><ShieldCheck /><p><strong>დემო რეჟიმი</strong><br>რეალური საბანკო ოპერაცია არ შესრულდება.</p></div><button class="checkout-button wide" @click="placeOrder">შეკვეთის დადასტურება — {{cartSubtotal.toLocaleString()}} ₾</button></section><aside class="mini-summary"><h2>მიწოდება</h2><p>გიორგი ბერიძე<br>+995 555 12 34 56<br>თბილისი, ჭავჭავაძის გამზირი 12</p><div class="summary-total"><span>სულ</span><strong>{{cartSubtotal.toLocaleString()}} ₾</strong></div></aside></div></div><div v-else class="success-card"><span><Check /></span><small>შეკვეთა მიღებულია</small><h1>მადლობა შენაძენისთვის!</h1><p>შეკვეთის ნომერია <strong>#AT-2026-1048</strong></p><button class="primary-btn" @click="goHome">მთავარ გვერდზე დაბრუნება</button></div></main>
 
     <main v-else class="admin-shell"><aside class="admin-sidebar"><a class="logo" href="#" @click.prevent="goHome"><span class="logo-mark"><Leaf /></span><span>AGRO<span>ADMIN</span></span></a><nav><button class="active">▦ მიმოხილვა</button><button>▣ პროდუქტები <b>508</b></button><button>▤ შეკვეთები <b>12</b></button><button>◉ მომხმარებლები</button><button>◇ კატეგორიები</button><button>％ ფასდაკლებები</button><button>▧ მარაგები</button><button>⚙ პარამეტრები</button></nav><button class="admin-exit" @click="goHome"><ArrowLeft :size="17" /> მაღაზიაში დაბრუნება</button></aside><section class="admin-content"><header class="admin-header"><div><small>25 სექტემბერი, 2026</small><h1>გამარჯობა, ადმინისტრატორო 👋</h1></div><button><CircleUserRound /> Admin</button></header><div class="stat-grid"><article><span>დღის გაყიდვები</span><strong>12,840 ₾</strong><small>↑ 18.4% წინა კვირასთან</small></article><article><span>ახალი შეკვეთები</span><strong>24</strong><small>12 საჭიროებს დამუშავებას</small></article><article><span>პროდუქტები</span><strong>508</strong><small>8 პროდუქტი მცირე მარაგით</small></article><article><span>მომხმარებლები</span><strong>2,847</strong><small>32 ახალი ამ თვეში</small></article></div><div class="admin-grid"><section class="admin-panel"><div class="panel-head"><div><h2>ბოლო შეკვეთები</h2><p>დღევანდელი აქტივობა</p></div><button>ყველას ნახვა</button></div><div class="order-table"><div class="table-head"><span>შეკვეთა</span><span>მომხმარებელი</span><span>თანხა</span><span>გადახდა</span><span>სტატუსი</span></div><div v-for="r in [['#1048','გიორგი ბერიძე','2,049 ₾','BOG განვადება','ახალი'],['#1047','ნინო მაისურაძე','780 ₾','ბარათი','გაგზავნილი'],['#1046','ლევან გელაშვილი','12,650 ₾','TBC განვადება','დამუშავება'],['#1045','მარიამ კიკნაძე','459 ₾','Liberty','დასრულებული']]" class="table-row"><strong>{{r[0]}}</strong><span>{{r[1]}}</span><strong>{{r[2]}}</strong><span>{{r[3]}}</span><em>{{r[4]}}</em></div></div></section><aside class="admin-panel low-stock"><div class="panel-head"><div><h2>მცირე მარაგი</h2><p>საჭიროებს შევსებას</p></div></div><div v-for="item in products.slice(0,4)"><img :src="item.image"><span><strong>{{item.name}}</strong><small>დარჩა {{Math.max(1,item.stock-5)}} ცალი</small></span><button>+</button></div></aside></div></section></main>
 
@@ -584,7 +687,7 @@ function chooseCategory(category) {
             <div class="compare-row compare-specs"><b>მახასიათებლები</b><ul v-for="product in compareProducts" :key="product.id"><li v-for="spec in product.specs" :key="spec">{{ spec }}</li></ul></div>
           </div>
           <div class="compare-actions">
-            <button v-for="product in compareProducts" :key="product.id" @click="selectedProduct=product; productsPage=false; comparePage=false">ნახე {{ product.name }}</button>
+            <button v-for="product in compareProducts" :key="product.id" @click="comparePage=false; openProductPage(product)">ნახე {{ product.name }}</button>
           </div>
         </section>
       </div>
