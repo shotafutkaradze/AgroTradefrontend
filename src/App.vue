@@ -14,6 +14,7 @@ const cartCount = ref(2)
 const wishlist = ref(new Set([2]))
 const selectedProduct = ref(null)
 const detailQty = ref(1)
+const detailTab = ref('description')
 const zoomOpen = ref(false)
 const cartPage = ref(false)
 const checkoutStep = ref(0)
@@ -138,6 +139,7 @@ function openCompare() {
 function showProduct(product) {
   selectedProduct.value = product
   detailQty.value = 1
+  detailTab.value = 'description'
 }
 
 function currentPageState() {
@@ -555,8 +557,8 @@ function placeOrder() {
         <div class="detail-info"><span class="detail-category">{{ selectedProduct.category }} • SKU: AG-{{ 3600 + selectedProduct.id }}</span><h1>{{ selectedProduct.name }}</h1><div class="detail-rating"><span>★★★★★</span><strong>{{ selectedProduct.rating }}</strong><small>{{ selectedProduct.reviews }} შეფასება</small></div><p class="detail-copy">ძლიერი და საიმედო ტექნიკა ყოველდღიური სამუშაოებისთვის. ეკონომიური ძრავი, გამძლე კონსტრუქცია და მარტივი მართვა.</p><div class="detail-price"><strong>{{ selectedProduct.price.toLocaleString() }} ₾</strong><del v-if="selectedProduct.oldPrice">{{ selectedProduct.oldPrice.toLocaleString() }} ₾</del><span v-if="selectedProduct.oldPrice">ზოგავ {{ selectedProduct.oldPrice - selectedProduct.price }} ₾</span></div><div class="installment-strip"><CreditCard :size="17" /><span><strong>განვადება ხელმისაწვდომია</strong><small>BOG / TBC / Liberty პირობებით</small></span></div><div class="availability"><span><Check /> მარაგშია — {{ selectedProduct.stock }} ცალი</span><small><Clock3 :size="15" /> გაგზავნა დღესვე</small></div><ul class="spec-list"><li v-for="spec in selectedProduct.specs"><Check :size="16" /> {{ spec }}</li></ul><div class="buy-row"><div class="quantity"><button @click="detailQty=Math.max(1,detailQty-1)"><Minus :size="16" /></button><span>{{ detailQty }}</span><button @click="detailQty++"><Plus :size="16" /></button></div><button class="primary-btn buy-button" @click="addToCart(selectedProduct, detailQty)"><ShoppingBag :size="19" /> კალათაში დამატება</button><button class="icon-btn detail-wish" @click="toggleWishlist(selectedProduct.id)"><Heart :fill="wishlist.has(selectedProduct.id) ? 'currentColor' : 'none'" /></button></div><div class="product-contact-actions"><a href="tel:+995598850503"><Phone :size="17" /> დარეკვა</a><a :href="`https://wa.me/995598850503?text=${encodeURIComponent('გამარჯობა, მაინტერესებს: ' + selectedProduct.name)}`" target="_blank" rel="noopener">WhatsApp-ში კითხვა</a></div><button class="detail-compare" :class="{active: compareIds.includes(selectedProduct.id)}" @click="toggleCompare(selectedProduct)"><Scale :size="17" /> {{ compareIds.includes(selectedProduct.id) ? 'შედარებიდან მოხსნა' : 'პროდუქტის შედარება' }}</button><div class="safe-buy"><ShieldCheck /><span><strong>უსაფრთხო შენაძენი</strong><small>ოფიციალური გარანტია და დაბრუნება 14 დღის განმავლობაში</small></span></div></div>
       </section>
       <section class="product-description-panel">
-        <div class="description-tabs"><button class="active">აღწერა</button><button>მახასიათებლები</button><button>მიწოდება და გარანტია</button></div>
-        <div class="description-grid">
+        <div class="description-tabs"><button :class="{active:detailTab==='description'}" @click="detailTab='description'">აღწერა</button><button :class="{active:detailTab==='specs'}" @click="detailTab='specs'">მახასიათებლები</button><button :class="{active:detailTab==='delivery'}" @click="detailTab='delivery'">მიწოდება და გარანტია</button></div>
+        <div v-if="detailTab==='description'" class="description-grid">
           <article class="description-copy">
             <span class="eyebrow">პროდუქტის აღწერა</span>
             <h2>{{ selectedProduct.name }}</h2>
@@ -567,6 +569,31 @@ function placeOrder() {
             <div><Check :size="17" /><span><strong>ოფიციალური გარანტია</strong><small>სერვისი და მხარდაჭერა შეძენის შემდეგაც</small></span></div>
             <div><Truck :size="17" /><span><strong>მიწოდება რეგიონებში</strong><small>თბილისი, ოკამი, ზესტაფონი და სხვა ქალაქები</small></span></div>
             <div><CreditCard :size="17" /><span><strong>მოქნილი გადახდა</strong><small>ბარათი, განვადება და ნაწილ-ნაწილ გადახდა</small></span></div>
+          </aside>
+        </div>
+        <div v-else-if="detailTab==='specs'" class="description-grid">
+          <article class="description-copy">
+            <span class="eyebrow">ტექნიკური დეტალები</span>
+            <h2>მახასიათებლები</h2>
+            <ul class="description-specs"><li v-for="spec in selectedProduct.specs" :key="spec"><Check :size="16" /> {{ spec }}</li><li><Check :size="16" /> მარაგი: {{ selectedProduct.stock }} ცალი</li><li><Check :size="16" /> SKU: AG-{{ 3600 + selectedProduct.id }}</li></ul>
+          </article>
+          <aside class="description-highlights">
+            <div><PackageCheck :size="17" /><span><strong>შეფუთვა შემოწმებულია</strong><small>გაცემამდე პროდუქტი მოწმდება ვიზუალურად</small></span></div>
+            <div><Scale :size="17" /><span><strong>შედარება შეგიძლია</strong><small>შეადარე ორ პროდუქტს შორის ფასი და პარამეტრები</small></span></div>
+            <div><Phone :size="17" /><span><strong>კონსულტაცია შერჩევამდე</strong><small>გეტყვით შეესაბამება თუ არა შენს სამუშაოს</small></span></div>
+          </aside>
+        </div>
+        <div v-else class="description-grid">
+          <article class="description-copy">
+            <span class="eyebrow">მიწოდება და გარანტია</span>
+            <h2>როგორ მიიღებ პროდუქტს</h2>
+            <p>შეკვეთის შემდეგ დაგიკავშირდებით დეტალების დასაზუსტებლად. შესაძლებელია კურიერით მიწოდება ან მაღაზიიდან გატანა თბილისის, ოკამის და ზესტაფონის ფილიალებიდან.</p>
+            <p>პროდუქტზე ვრცელდება ოფიციალური გარანტია. პრობლემის შემთხვევაში მიიღებ კონსულტაციას, სერვისს და საჭიროებისას დაბრუნების პირობებს 14 დღის ფარგლებში.</p>
+          </article>
+          <aside class="description-highlights">
+            <div><Truck :size="17" /><span><strong>მიწოდება რეგიონებში</strong><small>ვადას ოპერატორი დაგიზუსტებს შეკვეთისას</small></span></div>
+            <div><MapPin :size="17" /><span><strong>ფილიალიდან გატანა</strong><small>თბილისი, ოკამი ან ზესტაფონი</small></span></div>
+            <div><ShieldCheck :size="17" /><span><strong>გარანტია და დაბრუნება</strong><small>ოფიციალური მხარდაჭერა შეძენის შემდეგ</small></span></div>
           </aside>
         </div>
       </section>
