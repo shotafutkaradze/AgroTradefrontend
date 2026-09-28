@@ -15,6 +15,8 @@ const wishlist = ref(new Set([2]))
 const selectedProduct = ref(null)
 const detailQty = ref(1)
 const detailTab = ref('description')
+const productFaqOpen = ref(0)
+const quickOrderSent = ref(false)
 const zoomOpen = ref(false)
 const cartPage = ref(false)
 const checkoutStep = ref(0)
@@ -108,6 +110,7 @@ const compareProducts = computed(() => compareIds.value.map(id => allProducts.va
 const bestSellerProducts = computed(() => [...allProducts.value].sort((a, b) => b.reviews - a.reviews).slice(0, 4))
 const relatedProducts = computed(() => selectedProduct.value ? allProducts.value.filter(product => product.category === selectedProduct.value.category && product.id !== selectedProduct.value.id).slice(0, 4) : [])
 const cartRecommendations = computed(() => allProducts.value.filter(product => !cartItems.value.some(item => item.id === product.id)).slice(0, 3))
+const monthlyPayment = computed(() => selectedProduct.value ? Math.ceil(selectedProduct.value.price / 24) : 0)
 
 function toggleWishlist(id) {
   const next = new Set(wishlist.value)
@@ -140,6 +143,8 @@ function showProduct(product) {
   selectedProduct.value = product
   detailQty.value = 1
   detailTab.value = 'description'
+  productFaqOpen.value = 0
+  quickOrderSent.value = false
 }
 
 function currentPageState() {
@@ -355,6 +360,11 @@ function placeOrder() {
   rememberPage()
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
+
+function submitQuickOrder() {
+  quickOrderSent.value = true
+  window.setTimeout(() => quickOrderSent.value = false, 3200)
+}
 </script>
 
 <template>
@@ -554,7 +564,7 @@ function placeOrder() {
       <div class="breadcrumbs">მთავარი <ChevronRight :size="14" /> {{ selectedProduct.category }} <ChevronRight :size="14" /> {{ selectedProduct.name }}</div>
       <section class="product-detail">
         <div class="gallery"><div class="thumbs"><button v-for="n in 3" :class="{active:n===1}" @click="zoomOpen=true"><img :src="selectedProduct.image" /></button></div><div class="main-image zoomable" @click="zoomOpen=true"><span class="badge">{{ selectedProduct.badge }}</span><span class="zoom-hint">⌕ ფოტოს გადიდება</span><img :src="selectedProduct.image" :alt="selectedProduct.name" /></div></div>
-        <div class="detail-info"><span class="detail-category">{{ selectedProduct.category }} • SKU: AG-{{ 3600 + selectedProduct.id }}</span><h1>{{ selectedProduct.name }}</h1><div class="detail-rating"><span>★★★★★</span><strong>{{ selectedProduct.rating }}</strong><small>{{ selectedProduct.reviews }} შეფასება</small></div><p class="detail-copy">ძლიერი და საიმედო ტექნიკა ყოველდღიური სამუშაოებისთვის. ეკონომიური ძრავი, გამძლე კონსტრუქცია და მარტივი მართვა.</p><div class="detail-price"><strong>{{ selectedProduct.price.toLocaleString() }} ₾</strong><del v-if="selectedProduct.oldPrice">{{ selectedProduct.oldPrice.toLocaleString() }} ₾</del><span v-if="selectedProduct.oldPrice">ზოგავ {{ selectedProduct.oldPrice - selectedProduct.price }} ₾</span></div><div class="installment-strip"><CreditCard :size="17" /><span><strong>განვადება ხელმისაწვდომია</strong><small>BOG / TBC / Liberty პირობებით</small></span></div><div class="availability"><span><Check /> მარაგშია — {{ selectedProduct.stock }} ცალი</span><small><Clock3 :size="15" /> გაგზავნა დღესვე</small></div><ul class="spec-list"><li v-for="spec in selectedProduct.specs"><Check :size="16" /> {{ spec }}</li></ul><div class="buy-row"><div class="quantity"><button @click="detailQty=Math.max(1,detailQty-1)"><Minus :size="16" /></button><span>{{ detailQty }}</span><button @click="detailQty++"><Plus :size="16" /></button></div><button class="primary-btn buy-button" @click="addToCart(selectedProduct, detailQty)"><ShoppingBag :size="19" /> კალათაში დამატება</button><button class="icon-btn detail-wish" @click="toggleWishlist(selectedProduct.id)"><Heart :fill="wishlist.has(selectedProduct.id) ? 'currentColor' : 'none'" /></button></div><div class="product-contact-actions"><a href="tel:+995598850503"><Phone :size="17" /> დარეკვა</a><a :href="`https://wa.me/995598850503?text=${encodeURIComponent('გამარჯობა, მაინტერესებს: ' + selectedProduct.name)}`" target="_blank" rel="noopener">WhatsApp-ში კითხვა</a></div><button class="detail-compare" :class="{active: compareIds.includes(selectedProduct.id)}" @click="toggleCompare(selectedProduct)"><Scale :size="17" /> {{ compareIds.includes(selectedProduct.id) ? 'შედარებიდან მოხსნა' : 'პროდუქტის შედარება' }}</button><div class="safe-buy"><ShieldCheck /><span><strong>უსაფრთხო შენაძენი</strong><small>ოფიციალური გარანტია და დაბრუნება 14 დღის განმავლობაში</small></span></div></div>
+        <div class="detail-info"><span class="detail-category">{{ selectedProduct.category }} • SKU: AG-{{ 3600 + selectedProduct.id }}</span><h1>{{ selectedProduct.name }}</h1><div class="detail-rating"><span>★★★★★</span><strong>{{ selectedProduct.rating }}</strong><small>{{ selectedProduct.reviews }} შეფასება</small></div><p class="detail-copy">ძლიერი და საიმედო ტექნიკა ყოველდღიური სამუშაოებისთვის. ეკონომიური ძრავი, გამძლე კონსტრუქცია და მარტივი მართვა.</p><div class="detail-price"><strong>{{ selectedProduct.price.toLocaleString() }} ₾</strong><del v-if="selectedProduct.oldPrice">{{ selectedProduct.oldPrice.toLocaleString() }} ₾</del><span v-if="selectedProduct.oldPrice">ზოგავ {{ selectedProduct.oldPrice - selectedProduct.price }} ₾</span></div><div class="monthly-payment"><CreditCard :size="18" /><span><small>განვადებით</small><strong>თვეში {{ monthlyPayment.toLocaleString() }} ₾-დან</strong></span><em>24 თვემდე</em></div><div class="installment-strip"><CreditCard :size="17" /><span><strong>განვადება ხელმისაწვდომია</strong><small>BOG / TBC / Liberty პირობებით</small></span></div><div class="availability"><span><Check /> მარაგშია — {{ selectedProduct.stock }} ცალი</span><small><Clock3 :size="15" /> გაგზავნა დღესვე</small></div><ul class="spec-list"><li v-for="spec in selectedProduct.specs"><Check :size="16" /> {{ spec }}</li></ul><div class="quick-order"><div><strong>სწრაფი შეკვეთა</strong><small>დატოვე ნომერი და ოპერატორი დაგიკავშირდება</small></div><form @submit.prevent="submitQuickOrder"><input placeholder="სახელი"><input placeholder="+995 ტელეფონი"><button>{{ quickOrderSent ? 'გაგზავნილია' : 'დამირეკეთ' }}</button></form></div><div class="buy-row"><div class="quantity"><button @click="detailQty=Math.max(1,detailQty-1)"><Minus :size="16" /></button><span>{{ detailQty }}</span><button @click="detailQty++"><Plus :size="16" /></button></div><button class="primary-btn buy-button" @click="addToCart(selectedProduct, detailQty)"><ShoppingBag :size="19" /> კალათაში დამატება</button><button class="icon-btn detail-wish" @click="toggleWishlist(selectedProduct.id)"><Heart :fill="wishlist.has(selectedProduct.id) ? 'currentColor' : 'none'" /></button></div><div class="product-contact-actions"><a href="tel:+995598850503"><Phone :size="17" /> დარეკვა</a><a :href="`https://wa.me/995598850503?text=${encodeURIComponent('გამარჯობა, მაინტერესებს: ' + selectedProduct.name)}`" target="_blank" rel="noopener">WhatsApp-ში კითხვა</a></div><button class="detail-compare" :class="{active: compareIds.includes(selectedProduct.id)}" @click="toggleCompare(selectedProduct)"><Scale :size="17" /> {{ compareIds.includes(selectedProduct.id) ? 'შედარებიდან მოხსნა' : 'პროდუქტის შედარება' }}</button><div class="safe-buy"><ShieldCheck /><span><strong>უსაფრთხო შენაძენი</strong><small>ოფიციალური გარანტია და დაბრუნება 14 დღის განმავლობაში</small></span></div></div>
       </section>
       <section class="product-description-panel">
         <div class="description-tabs"><button :class="{active:detailTab==='description'}" @click="detailTab='description'">აღწერა</button><button :class="{active:detailTab==='specs'}" @click="detailTab='specs'">მახასიათებლები</button><button :class="{active:detailTab==='delivery'}" @click="detailTab='delivery'">მიწოდება და გარანტია</button></div>
@@ -595,6 +605,20 @@ function placeOrder() {
             <div><MapPin :size="17" /><span><strong>ფილიალიდან გატანა</strong><small>თბილისი, ოკამი ან ზესტაფონი</small></span></div>
             <div><ShieldCheck :size="17" /><span><strong>გარანტია და დაბრუნება</strong><small>ოფიციალური მხარდაჭერა შეძენის შემდეგ</small></span></div>
           </aside>
+        </div>
+      </section>
+      <section class="product-faq-panel">
+        <div class="section-head"><div><span class="eyebrow">ხშირი კითხვები</span><h2>რას კითხულობენ ამ პროდუქტზე?</h2></div></div>
+        <div class="product-faq-list">
+          <article v-for="(faq,index) in [
+            ['შეიძლება განვადებით ყიდვა?', 'კი, შესაძლებელია BOG/TBC/Liberty პირობებით. ზუსტი თვიური თანხა ბანკის პირობაზე და არჩეულ ვადაზეა დამოკიდებული.'],
+            ['მიწოდება რეგიონებში გაქვთ?', 'კი, შეკვეთის შემდეგ ოპერატორი დაგიზუსტებს მისამართს, ვადას და მიწოდების ღირებულებას.'],
+            ['როგორ მივხვდე ეს მოდელი მჭირდება თუ არა?', 'დაგვირეკე ან WhatsApp-ში მოგვწერე. გკითხავთ სამუშაოს ტიპს და ნაკვეთის ზომას, შემდეგ სწორ მოდელს შეგირჩევთ.'],
+            ['გარანტია აქვს?', 'პროდუქტზე მოქმედებს ოფიციალური გარანტია და შეძენის შემდეგაც შეგიძლია სერვისის/კონსულტაციის მიღება.']
+          ]" :key="faq[0]" :class="{open:productFaqOpen===index}">
+            <button @click="productFaqOpen = productFaqOpen === index ? -1 : index"><span>{{ faq[0] }}</span><Plus :size="17" /></button>
+            <p>{{ faq[1] }}</p>
+          </article>
         </div>
       </section>
       <section v-if="relatedProducts.length" class="related-products">
