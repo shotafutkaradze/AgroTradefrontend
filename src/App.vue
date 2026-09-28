@@ -338,6 +338,25 @@ function openProductsPage(category = activeCategory.value) {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
+function openOffersPage() {
+  openProductsPage('ყველა')
+  onlyDiscounted.value = true
+  sortBy.value = 'discount'
+}
+
+function scrollToSection(id) {
+  selectedProduct.value = null
+  productsPage.value = false
+  cartPage.value = false
+  checkoutStep.value = 0
+  adminPage.value = false
+  comparePage.value = false
+  mobileMenu.value = false
+  catalogOpen.value = false
+  rememberPage()
+  window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0)
+}
+
 function chooseCategory(category) {
   openProductsPage(category)
 }
@@ -384,7 +403,7 @@ function placeOrder() {
       </div>
       <nav class="wrap desktop-nav">
         <button class="catalog-btn" :class="{open:catalogOpen}" @click="catalogOpen=!catalogOpen"><Menu :size="18" /> ყველა კატეგორია <ChevronDown :size="16" /></button>
-        <a href="#" @click.prevent="openProductsPage('ყველა')">პროდუქცია</a><a href="#categories">კატეგორიები</a><a href="#offers">სპეც. შეთავაზებები</a><a href="#services">სერვისი</a><a href="#contact">კონტაქტი</a>
+        <a href="#" @click.prevent="openProductsPage('ყველა')">პროდუქცია</a><a href="#categories">კატეგორიები</a><a href="#" @click.prevent="openOffersPage">სპეც. შეთავაზებები</a><a href="#" @click.prevent="scrollToSection('service-info')">სერვისი</a><a href="#contact">კონტაქტი</a>
         <span class="nav-location"><MapPin :size="16" /> თბილისი</span>
       </nav>
       <transition name="catalog-fade"><div v-if="catalogOpen" class="catalog-menu"><div class="wrap catalog-grid"><button @click="chooseCategory('ყველა')"><span class="catalog-icon">✦</span><span><strong>ყველა პროდუქტი</strong><small>სრული კატალოგი</small></span><ChevronRight :size="16" /></button><button v-for="item in [{name:'ტრაქტორები',icon:'◈',sub:'50 პროდუქტი'},{name:'მოტობლოკები',icon:'◉',sub:'24 პროდუქტი'},{name:'გენერატორები',icon:'⚡',sub:'18 პროდუქტი'},{name:'ბენზოხერხები',icon:'⌁',sub:'31 პროდუქტი'},{name:'ტუმბოები',icon:'◌',sub:'16 პროდუქტი'},{name:'ბაღის ტექნიკა',icon:'♧',sub:'27 პროდუქტი'},{name:'ინსტრუმენტები',icon:'✣',sub:'42 პროდუქტი'}]" :key="item.name" @click="chooseCategory(item.name)"><span class="catalog-icon">{{ item.icon }}</span><span><strong>{{ item.name }}</strong><small>{{ item.sub }}</small></span><ChevronRight :size="16" /></button></div></div></transition>
@@ -477,9 +496,9 @@ function placeOrder() {
         </div>
       </section>
 
-      <section class="promo wrap" id="offers"><div><span class="eyebrow light">შეზღუდული შეთავაზება</span><h2>მოამზადე მეურნეობა<br>ახალი სეზონისთვის</h2><p>არჩეულ ბაღის ტექნიკაზე ფასდაკლება 20%-მდე.</p><button>შეთავაზებების ნახვა <ArrowRight :size="18" /></button></div><div class="promo-number"><small>ფასდაკლება</small><strong>20<sup>%</sup></strong><span>მდე</span></div></section>
+      <section class="promo wrap" id="offers"><div><span class="eyebrow light">შეზღუდული შეთავაზება</span><h2>მოამზადე მეურნეობა<br>ახალი სეზონისთვის</h2><p>არჩეულ ბაღის ტექნიკაზე ფასდაკლება 20%-მდე.</p><button @click="openOffersPage">შეთავაზებების ნახვა <ArrowRight :size="18" /></button></div><div class="promo-number"><small>ფასდაკლება</small><strong>20<sup>%</sup></strong><span>მდე</span></div></section>
 
-      <section class="story-section"><div class="wrap story-grid"><div class="story-photo"><img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1000&q=85" alt="ქართული მეურნეობა"><span><strong>15+</strong> წელი თქვენთან ერთად</span></div><div class="story-copy"><span class="eyebrow">ჩვენი გამოცდილება</span><h2>ვყიდით არა უბრალოდ ტექნიკას — ვპოულობთ სწორ გადაწყვეტას</h2><p>ჩვენი გუნდი დაგეხმარება სიმძლავრის, დანიშნულებისა და ბიუჯეტის მიხედვით საუკეთესო მოდელის შერჩევაში. შენაძენის შემდეგ კი სერვისი და სათადარიგო ნაწილებიც ადგილზე დაგხვდება.</p><div class="quote"><div class="quote-stars">★★★★★</div><blockquote>„კონსულტანტმა ზუსტად ის მოტობლოკი შემირჩია, რაც ჩემს ნაკვეთს სჭირდებოდა. მიწოდებაც მეორე დღესვე მივიღე.“</blockquote><strong>გიორგი მ. <span>• კახეთი</span></strong></div></div></div></section>
+      <section class="story-section" id="service-info"><div class="wrap story-grid"><div class="story-photo"><img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1000&q=85" alt="ქართული მეურნეობა"><span><strong>15+</strong> წელი თქვენთან ერთად</span></div><div class="story-copy"><span class="eyebrow">ჩვენი გამოცდილება</span><h2>ვყიდით არა უბრალოდ ტექნიკას — ვპოულობთ სწორ გადაწყვეტას</h2><p>ჩვენი გუნდი დაგეხმარება სიმძლავრის, დანიშნულებისა და ბიუჯეტის მიხედვით საუკეთესო მოდელის შერჩევაში. შენაძენის შემდეგ კი სერვისი და სათადარიგო ნაწილებიც ადგილზე დაგხვდება.</p><div class="quote"><div class="quote-stars">★★★★★</div><blockquote>„კონსულტანტმა ზუსტად ის მოტობლოკი შემირჩია, რაც ჩემს ნაკვეთს სჭირდებოდა. მიწოდებაც მეორე დღესვე მივიღე.“</blockquote><strong>გიორგი მ. <span>• კახეთი</span></strong></div></div></div></section>
 
       <section class="faq-section wrap"><div><span class="eyebrow">ხშირი კითხვები</span><h2>ყველაფერი, რაც შეძენამდე უნდა იცოდე</h2><p>ვერ იპოვე პასუხი? დაგვირეკე და ჩვენი კონსულტანტი დაგეხმარება.</p><a href="tel:+995598850503"><Phone :size="17" /> +995 598 850 503</a></div><div class="faq-list"><article v-for="(faq, index) in [['რამდენ ხანში ხდება მიწოდება?', 'თბილისში შეკვეთა ბარდება 1–2 სამუშაო დღეში, რეგიონებში — 2–4 სამუშაო დღეში.'],['აქვს თუ არა ტექნიკას გარანტია?', 'დიახ, ყველა ტექნიკას ახლავს ოფიციალური გარანტია. ვადა დამოკიდებულია კონკრეტულ ბრენდსა და მოდელზე.'],['შესაძლებელია ადგილზე კონსულტაცია?', 'რა თქმა უნდა. ჩვენს შოურუმში სპეციალისტი ტექნიკას ადგილზე გაჩვენებთ და შერჩევაში დაგეხმარებათ.'],['გაქვთ სათადარიგო ნაწილები და სერვისი?', 'დიახ, გვაქვს როგორც საგარანტიო სერვისი, ისე ყველაზე მოთხოვნადი სათადარიგო ნაწილები.']]" :key="faq[0]" :class="{open:openFaq===index}"><button @click="openFaq = openFaq === index ? -1 : index"><span>{{ faq[0] }}</span><Plus :size="20" /></button><p>{{ faq[1] }}</p></article></div></section>
 
@@ -762,12 +781,12 @@ function placeOrder() {
     </transition>
 
     <footer v-if="!adminPage">
-      <div class="wrap footer-grid"><div><a class="logo footer-logo" href="#" @click.prevent="goHome"><span class="logo-mark"><Leaf /></span><span>AGRO<span>TRADE</span></span></a><p>ხარისხიანი სასოფლო-სამეურნეო ტექნიკა და პროფესიონალური მომსახურება.</p></div><div><h4>ნავიგაცია</h4><a href="#" @click.prevent="openProductsPage('ყველა')">პროდუქცია</a><a href="#categories">კატეგორიები</a><a href="#services">სერვისი</a></div><div><h4>მისამართები</h4><a href="https://maps.app.goo.gl/PvjEHT4oDRApxGAeA" target="_blank" rel="noopener">თბილისი, წერეთლის გამზ. N147</a><a href="https://maps.app.goo.gl/3NDu29YprotRacKc9" target="_blank" rel="noopener">ოკამი, მე-40 კმ</a><a href="https://maps.app.goo.gl/BevpdezxUeabjfyn9" target="_blank" rel="noopener">ზესტაფონი, რუსთაველის ქ. N60</a></div><div><h4>კონტაქტი</h4><a href="tel:+995598850503">+995 598 850 503</a><span>ორშ–შაბ: 09:00–18:00</span></div></div><div class="wrap copyright">© 2026 Agro Trade. ყველა უფლება დაცულია. <span>დემო ვერსია</span></div>
+      <div class="wrap footer-grid"><div><a class="logo footer-logo" href="#" @click.prevent="goHome"><span class="logo-mark"><Leaf /></span><span>AGRO<span>TRADE</span></span></a><p>ხარისხიანი სასოფლო-სამეურნეო ტექნიკა და პროფესიონალური მომსახურება.</p></div><div><h4>ნავიგაცია</h4><a href="#" @click.prevent="openProductsPage('ყველა')">პროდუქცია</a><a href="#categories">კატეგორიები</a><a href="#" @click.prevent="scrollToSection('service-info')">სერვისი</a></div><div><h4>მისამართები</h4><a href="https://maps.app.goo.gl/PvjEHT4oDRApxGAeA" target="_blank" rel="noopener">თბილისი, წერეთლის გამზ. N147</a><a href="https://maps.app.goo.gl/3NDu29YprotRacKc9" target="_blank" rel="noopener">ოკამი, მე-40 კმ</a><a href="https://maps.app.goo.gl/BevpdezxUeabjfyn9" target="_blank" rel="noopener">ზესტაფონი, რუსთაველის ქ. N60</a></div><div><h4>კონტაქტი</h4><a href="tel:+995598850503">+995 598 850 503</a><span>ორშ–შაბ: 09:00–18:00</span></div></div><div class="wrap copyright">© 2026 Agro Trade. ყველა უფლება დაცულია. <span>დემო ვერსია</span></div>
     </footer>
 
     <transition name="toast"><div v-if="addedToast" class="toast"><span><Check /></span> პროდუქტი დაემატა კალათაში</div></transition>
     <transition name="lightbox"><div v-if="zoomOpen && selectedProduct" class="image-lightbox" @click.self="zoomOpen=false"><button class="lightbox-close" @click="zoomOpen=false"><X /></button><div class="lightbox-content"><img :src="selectedProduct.image" :alt="selectedProduct.name"><div><span>{{ selectedProduct.category }}</span><strong>{{ selectedProduct.name }}</strong><small>დააჭირე ფონს დასახურად</small></div></div></div></transition>
-    <div v-if="mobileMenu" class="mobile-drawer"><div class="drawer-head"><span>მენიუ</span><button @click="mobileMenu=false"><X /></button></div><button class="mobile-catalog-toggle" @click="catalogOpen=!catalogOpen"><span>კატეგორიები</span><ChevronDown :class="{rotated:catalogOpen}" /></button><div v-if="catalogOpen" class="mobile-category-list"><button v-for="cat in ['ყველა','ტრაქტორები','მოტობლოკები','გენერატორები','ბენზოხერხები','ტუმბოები','ბაღის ტექნიკა','ინსტრუმენტები']" :key="cat" @click="chooseCategory(cat)">{{ cat }}</button></div><a href="#" @click.prevent="openProductsPage('ყველა')">პროდუქცია</a><a href="#offers" @click="mobileMenu=false">შეთავაზებები</a><a href="#contact" @click="mobileMenu=false">კონტაქტი</a></div>
+    <div v-if="mobileMenu" class="mobile-drawer"><div class="drawer-head"><span>მენიუ</span><button @click="mobileMenu=false"><X /></button></div><button class="mobile-catalog-toggle" @click="catalogOpen=!catalogOpen"><span>კატეგორიები</span><ChevronDown :class="{rotated:catalogOpen}" /></button><div v-if="catalogOpen" class="mobile-category-list"><button v-for="cat in ['ყველა','ტრაქტორები','მოტობლოკები','გენერატორები','ბენზოხერხები','ტუმბოები','ბაღის ტექნიკა','ინსტრუმენტები']" :key="cat" @click="chooseCategory(cat)">{{ cat }}</button></div><a href="#" @click.prevent="openProductsPage('ყველა')">პროდუქცია</a><a href="#" @click.prevent="openOffersPage">შეთავაზებები</a><a href="#" @click.prevent="scrollToSection('service-info')">სერვისი</a><a href="#contact" @click="mobileMenu=false">კონტაქტი</a></div>
     <div v-if="mobileMenu" class="overlay" @click="mobileMenu=false"></div>
   </div>
 </template>
