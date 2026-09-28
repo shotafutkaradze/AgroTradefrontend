@@ -608,6 +608,17 @@ function placeOrder() {
           </aside>
         </div>
       </section>
+      <section v-if="relatedProducts.length" class="related-products">
+        <div class="section-head"><div><span class="eyebrow">მსგავსი პროდუქტები</span><h2>შეიძლება ესეც დაგაინტერესოს</h2></div></div>
+        <div class="related-grid">
+          <article v-for="product in relatedProducts" :key="product.id" @click="openProductPage(product)">
+            <img :src="product.image" :alt="product.name">
+            <span>{{ product.category }}</span>
+            <strong>{{ product.name }}</strong>
+            <b>{{ product.price.toLocaleString() }} ₾</b>
+          </article>
+        </div>
+      </section>
       <section class="product-faq-panel">
         <div class="section-head"><div><span class="eyebrow">ხშირი კითხვები</span><h2>რას კითხულობენ ამ პროდუქტზე?</h2></div></div>
         <div class="product-faq-list">
@@ -619,17 +630,6 @@ function placeOrder() {
           ]" :key="faq[0]" :class="{open:productFaqOpen===index}">
             <button @click="productFaqOpen = productFaqOpen === index ? -1 : index"><span>{{ faq[0] }}</span><Plus :size="17" /></button>
             <p>{{ faq[1] }}</p>
-          </article>
-        </div>
-      </section>
-      <section v-if="relatedProducts.length" class="related-products">
-        <div class="section-head"><div><span class="eyebrow">მსგავსი პროდუქტები</span><h2>შეიძლება ესეც დაგაინტერესოს</h2></div></div>
-        <div class="related-grid">
-          <article v-for="product in relatedProducts" :key="product.id" @click="openProductPage(product)">
-            <img :src="product.image" :alt="product.name">
-            <span>{{ product.category }}</span>
-            <strong>{{ product.name }}</strong>
-            <b>{{ product.price.toLocaleString() }} ₾</b>
           </article>
         </div>
       </section>
