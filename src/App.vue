@@ -554,6 +554,22 @@ function placeOrder() {
         <div class="gallery"><div class="thumbs"><button v-for="n in 3" :class="{active:n===1}" @click="zoomOpen=true"><img :src="selectedProduct.image" /></button></div><div class="main-image zoomable" @click="zoomOpen=true"><span class="badge">{{ selectedProduct.badge }}</span><span class="zoom-hint">⌕ ფოტოს გადიდება</span><img :src="selectedProduct.image" :alt="selectedProduct.name" /></div></div>
         <div class="detail-info"><span class="detail-category">{{ selectedProduct.category }} • SKU: AG-{{ 3600 + selectedProduct.id }}</span><h1>{{ selectedProduct.name }}</h1><div class="detail-rating"><span>★★★★★</span><strong>{{ selectedProduct.rating }}</strong><small>{{ selectedProduct.reviews }} შეფასება</small></div><p class="detail-copy">ძლიერი და საიმედო ტექნიკა ყოველდღიური სამუშაოებისთვის. ეკონომიური ძრავი, გამძლე კონსტრუქცია და მარტივი მართვა.</p><div class="detail-price"><strong>{{ selectedProduct.price.toLocaleString() }} ₾</strong><del v-if="selectedProduct.oldPrice">{{ selectedProduct.oldPrice.toLocaleString() }} ₾</del><span v-if="selectedProduct.oldPrice">ზოგავ {{ selectedProduct.oldPrice - selectedProduct.price }} ₾</span></div><div class="installment-strip"><CreditCard :size="17" /><span><strong>განვადება ხელმისაწვდომია</strong><small>BOG / TBC / Liberty პირობებით</small></span></div><div class="availability"><span><Check /> მარაგშია — {{ selectedProduct.stock }} ცალი</span><small><Clock3 :size="15" /> გაგზავნა დღესვე</small></div><ul class="spec-list"><li v-for="spec in selectedProduct.specs"><Check :size="16" /> {{ spec }}</li></ul><div class="buy-row"><div class="quantity"><button @click="detailQty=Math.max(1,detailQty-1)"><Minus :size="16" /></button><span>{{ detailQty }}</span><button @click="detailQty++"><Plus :size="16" /></button></div><button class="primary-btn buy-button" @click="addToCart(selectedProduct, detailQty)"><ShoppingBag :size="19" /> კალათაში დამატება</button><button class="icon-btn detail-wish" @click="toggleWishlist(selectedProduct.id)"><Heart :fill="wishlist.has(selectedProduct.id) ? 'currentColor' : 'none'" /></button></div><div class="product-contact-actions"><a href="tel:+995598850503"><Phone :size="17" /> დარეკვა</a><a :href="`https://wa.me/995598850503?text=${encodeURIComponent('გამარჯობა, მაინტერესებს: ' + selectedProduct.name)}`" target="_blank" rel="noopener">WhatsApp-ში კითხვა</a></div><button class="detail-compare" :class="{active: compareIds.includes(selectedProduct.id)}" @click="toggleCompare(selectedProduct)"><Scale :size="17" /> {{ compareIds.includes(selectedProduct.id) ? 'შედარებიდან მოხსნა' : 'პროდუქტის შედარება' }}</button><div class="safe-buy"><ShieldCheck /><span><strong>უსაფრთხო შენაძენი</strong><small>ოფიციალური გარანტია და დაბრუნება 14 დღის განმავლობაში</small></span></div></div>
       </section>
+      <section class="product-description-panel">
+        <div class="description-tabs"><button class="active">აღწერა</button><button>მახასიათებლები</button><button>მიწოდება და გარანტია</button></div>
+        <div class="description-grid">
+          <article class="description-copy">
+            <span class="eyebrow">პროდუქტის აღწერა</span>
+            <h2>{{ selectedProduct.name }}</h2>
+            <p>{{ selectedProduct.name }} განკუთვნილია ყოველდღიური სასოფლო-სამეურნეო და სამუშაო გამოყენებისთვის. მოდელი შერჩეულია ისე, რომ მომხმარებელმა მიიღოს გამძლე კორპუსი, მარტივი მართვა და ეკონომიური მუშაობა.</p>
+            <p>შეძენამდე შეგიძლია დაგვირეკო ან მოგვწერო WhatsApp-ში. კონსულტანტი შეგირჩევს სწორ სიმძლავრეს, აგიხსნის განვადების პირობებს და გეტყვის მიწოდების ზუსტ ვადას.</p>
+          </article>
+          <aside class="description-highlights">
+            <div><Check :size="17" /><span><strong>ოფიციალური გარანტია</strong><small>სერვისი და მხარდაჭერა შეძენის შემდეგაც</small></span></div>
+            <div><Truck :size="17" /><span><strong>მიწოდება რეგიონებში</strong><small>თბილისი, ოკამი, ზესტაფონი და სხვა ქალაქები</small></span></div>
+            <div><CreditCard :size="17" /><span><strong>მოქნილი გადახდა</strong><small>ბარათი, განვადება და ნაწილ-ნაწილ გადახდა</small></span></div>
+          </aside>
+        </div>
+      </section>
       <section v-if="relatedProducts.length" class="related-products">
         <div class="section-head"><div><span class="eyebrow">მსგავსი პროდუქტები</span><h2>ამავე კატეგორიიდან</h2></div></div>
         <div class="related-grid">
