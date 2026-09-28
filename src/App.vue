@@ -107,7 +107,14 @@ const searchResults = computed(() => search.value.trim().length < 2 ? [] : allPr
 const cartSubtotal = computed(() => cartItems.value.reduce((sum, item) => sum + item.price * item.qty, 0))
 const compareProducts = computed(() => compareIds.value.map(id => allProducts.value.find(product => product.id === id)).filter(Boolean))
 const bestSellerProducts = computed(() => [...allProducts.value].sort((a, b) => b.reviews - a.reviews).slice(0, 4))
-const relatedProducts = computed(() => selectedProduct.value ? allProducts.value.filter(product => product.category === selectedProduct.value.category && product.id !== selectedProduct.value.id).slice(0, 4) : [])
+const relatedProducts = computed(() => {
+  if (!selectedProduct.value) return []
+  const sameCategory = allProducts.value.filter(product => product.category === selectedProduct.value.category && product.id !== selectedProduct.value.id)
+  const fallback = [...allProducts.value]
+    .filter(product => product.id !== selectedProduct.value.id && !sameCategory.some(item => item.id === product.id))
+    .sort((a, b) => b.reviews - a.reviews)
+  return [...sameCategory, ...fallback].slice(0, 4)
+})
 const cartRecommendations = computed(() => allProducts.value.filter(product => !cartItems.value.some(item => item.id === product.id)).slice(0, 3))
 const monthlyPayment = computed(() => selectedProduct.value ? Math.ceil(selectedProduct.value.price / 24) : 0)
 
@@ -616,7 +623,7 @@ function placeOrder() {
         </div>
       </section>
       <section v-if="relatedProducts.length" class="related-products">
-        <div class="section-head"><div><span class="eyebrow">მსგავსი პროდუქტები</span><h2>ამავე კატეგორიიდან</h2></div></div>
+        <div class="section-head"><div><span class="eyebrow">მსგავსი პროდუქტები</span><h2>შეიძლება ესეც დაგაინტერესოს</h2></div></div>
         <div class="related-grid">
           <article v-for="product in relatedProducts" :key="product.id" @click="openProductPage(product)">
             <img :src="product.image" :alt="product.name">
