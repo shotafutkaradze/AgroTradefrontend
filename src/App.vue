@@ -37,21 +37,21 @@ const sortBy = ref('popular')
 const applyingHistoryState = ref(false)
 
 const categories = [
-  { name: 'მოტობლოკები', image: 'https://images.unsplash.com/photo-1592982537447-6f2a6a0c7c0c?auto=format&fit=crop&w=700&q=80', count: 24 },
-  { name: 'გენერატორები', image: 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=700&q=80', count: 18 },
-  { name: 'ბენზოხერხები', image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=700&q=80', count: 31 },
-  { name: 'ტუმბოები', image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=700&q=80', count: 16 },
+  { name: 'მოტობლოკები', image: 'https://agro-trade.ge/wp-content/uploads/2026/04/BUFFALO-177F-1700.jpeg', count: 24 },
+  { name: 'გენერატორები', image: 'https://agro-trade.ge/wp-content/uploads/2026/04/AGRI-177C-M-9-1600-₾.jpeg', count: 18 },
+  { name: 'ბენზოხერხები', image: 'https://agro-trade.ge/wp-content/uploads/2022/01/chain-saw.png', count: 31 },
+  { name: 'ტუმბოები', image: 'https://agro-trade.ge/wp-content/uploads/2022/01/pump.png', count: 16 },
 ]
 
 const products = [
   { id: 1, name: 'მოტობლოკი BUFFALO 177F', category: 'მოტობლოკები', price: 1700, oldPrice: 1890, rating: 4.9, reviews: 18, badge: '-10%', stock: 7, image: 'https://agro-trade.ge/wp-content/uploads/2026/04/BUFFALO-177F-1700.jpeg', specs: ['ძრავი: 9 ცხ.ძ.', 'საწვავი: ბენზინი', 'სტარტერი და განათება'] },
-  { id: 2, name: 'ამური 170GS-L', category: 'მოტობლოკები', price: 990, oldPrice: null, rating: 4.8, reviews: 12, badge: 'პოპულარული', stock: 11, image: 'https://agro-trade.ge/wp-content/uploads/2026/09/c1e5d4d2-a61d-4302-9200-2fe8ee802bf5.jpg', specs: ['ძრავი: 7 ცხ.ძ.', 'სიჩქარე: 2+1', 'კომპაქტური კორპუსი'] },
-  { id: 3, name: 'ბენზინის გენერატორი 3.5 kW', category: 'გენერატორები', price: 1290, oldPrice: 1450, rating: 4.7, reviews: 9, badge: 'ახალი', stock: 4, image: 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=900&q=85', specs: ['სიმძლავრე: 3.5 kW', 'ძაბვა: 220V', 'ავტომატური დამცავი'] },
-  { id: 4, name: 'პროფესიონალური ბენზოხერხი 58cc', category: 'ბენზოხერხები', price: 349, oldPrice: 419, rating: 4.9, reviews: 27, badge: '-17%', stock: 15, image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=900&q=85', specs: ['ძრავი: 58cc', 'შინა: 50 სმ', 'ანტივიბრაციული სისტემა'] },
-  { id: 5, name: 'წყლის ტუმბო 3\" WP-30', category: 'ტუმბოები', price: 459, oldPrice: 520, rating: 4.8, reviews: 16, badge: '-12%', stock: 9, image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=900&q=85', specs: ['დიამეტრი: 3 ინჩი', 'წარმადობა: 60 მ³/სთ', 'აწევის სიმაღლე: 28 მ'] },
-  { id: 6, name: 'გაზონის სათიბი თვითმავალი', category: 'ბაღის ტექნიკა', price: 780, oldPrice: null, rating: 4.6, reviews: 8, badge: 'ახალი', stock: 6, image: 'https://images.unsplash.com/photo-1594498653385-d5172c532c00?auto=format&fit=crop&w=900&q=85', specs: ['სიგანე: 51 სმ', 'თვითმავალი', 'ბალახის შემგროვებელი'] },
-  { id: 7, name: 'მაღალი წნევის აპარატი 180 bar', category: 'ინსტრუმენტები', price: 629, oldPrice: 699, rating: 4.9, reviews: 21, badge: 'TOP', stock: 12, image: 'https://images.unsplash.com/photo-1586864387789-628af9feed72?auto=format&fit=crop&w=900&q=85', specs: ['წნევა: 180 bar', 'სიმძლავრე: 2400 W', 'შლანგი: 8 მ'] },
-  { id: 8, name: 'ელექტრო შემდუღებელი 250A', category: 'ინსტრუმენტები', price: 389, oldPrice: 440, rating: 4.7, reviews: 14, badge: '-11%', stock: 19, image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=900&q=85', specs: ['სიმძლავრე: 250A', 'ინვერტორული', 'ციფრული ეკრანი'] },
+  { id: 2, name: 'ამური 170GS-L', category: 'მოტობლოკები', price: 990, oldPrice: null, rating: 4.8, reviews: 12, badge: 'პოპულარული', stock: 11, image: 'https://agro-trade.ge/wp-content/uploads/2026/09/7-cx.Z.-amuri_990.jpg', specs: ['ძრავი: 7 ცხ.ძ.', 'სიჩქარე: 2+1', 'კომპაქტური კორპუსი'] },
+  { id: 3, name: 'ბენზინის გენერატორი 3.5 kW', category: 'გენერატორები', price: 1290, oldPrice: 1450, rating: 4.7, reviews: 9, badge: 'ახალი', stock: 4, image: 'https://agro-trade.ge/wp-content/uploads/2026/04/AGRI-177C-M-9-1600-₾.jpeg', specs: ['სიმძლავრე: 3.5 kW', 'ძაბვა: 220V', 'ავტომატური დამცავი'] },
+  { id: 4, name: 'პროფესიონალური ბენზოხერხი 58cc', category: 'ბენზოხერხები', price: 349, oldPrice: 419, rating: 4.9, reviews: 27, badge: '-17%', stock: 15, image: 'https://agro-trade.ge/wp-content/uploads/2022/01/chain-saw.png', specs: ['ძრავი: 58cc', 'შინა: 50 სმ', 'ანტივიბრაციული სისტემა'] },
+  { id: 5, name: 'წყლის ტუმბო 3\" WP-30', category: 'ტუმბოები', price: 459, oldPrice: 520, rating: 4.8, reviews: 16, badge: '-12%', stock: 9, image: 'https://agro-trade.ge/wp-content/uploads/2022/01/pump.png', specs: ['დიამეტრი: 3 ინჩი', 'წარმადობა: 60 მ³/სთ', 'აწევის სიმაღლე: 28 მ'] },
+  { id: 6, name: 'გაზონის სათიბი თვითმავალი', category: 'ბაღის ტექნიკა', price: 780, oldPrice: null, rating: 4.6, reviews: 8, badge: 'ახალი', stock: 6, image: 'https://agro-trade.ge/wp-content/uploads/2022/01/lawnmower.png', specs: ['სიგანე: 51 სმ', 'თვითმავალი', 'ბალახის შემგროვებელი'] },
+  { id: 7, name: 'შესასხურებელი აპარატი Pandora', category: 'ინსტრუმენტები', price: 629, oldPrice: 699, rating: 4.9, reviews: 21, badge: 'TOP', stock: 12, image: 'https://agro-trade.ge/wp-content/uploads/2022/02/PandoraSprayer-1-1.jpg', specs: ['წნევა: 180 bar', 'სიმძლავრე: 2400 W', 'შლანგი: 8 მ'] },
+  { id: 8, name: 'საბურავი 6.00-12', category: 'ინსტრუმენტები', price: 389, oldPrice: 440, rating: 4.7, reviews: 14, badge: '-11%', stock: 19, image: 'https://agro-trade.ge/wp-content/uploads/2022/03/6.00-121231.jpg', specs: ['ზომა: 6.00-12', 'გამძლე პროტექტორი', 'სასოფლო ტექნიკისთვის'] },
 ]
 const cartItems = ref([
   { ...products[0], qty: 1 },
@@ -59,9 +59,9 @@ const cartItems = ref([
 ])
 
 const tractorImages = [
-  'https://images.unsplash.com/photo-1605338198618-d6c49ab12ec2?auto=format&fit=crop&w=900&q=85',
-  'https://images.unsplash.com/photo-1530267981375-f0de937f5f13?auto=format&fit=crop&w=900&q=85',
-  'https://images.unsplash.com/photo-1591465001609-ded6360ecaab?auto=format&fit=crop&w=900&q=85'
+  'https://agro-trade.ge/wp-content/uploads/2026/04/HIROMIKI-195F.jpg',
+  'https://agro-trade.ge/wp-content/uploads/2026/04/HIROMIKI-192F-1.jpg',
+  'https://agro-trade.ge/wp-content/uploads/2026/04/BUFFALO-170FBL.jpeg'
 ]
 const tractors = Array.from({ length: 50 }, (_, index) => ({
   id: 100 + index,
