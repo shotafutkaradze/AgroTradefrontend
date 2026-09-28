@@ -433,7 +433,7 @@ function placeOrder() {
         <div><Phone /><span><strong>პროფესიონალური რჩევა</strong><small>დაგეხმარებით არჩევაში</small></span></div>
       </section>
 
-      <section class="brand-strip wrap" aria-label="ბრენდები"><span>ბრენდები, რომლებსაც ვენდობით</span><div><b v-for="brand in brands" :key="brand">{{ brand }}</b></div></section>
+      <section class="brand-strip wrap" aria-label="ბრენდები"><span>ბრენდები, რომლებსაც ვენდობით</span><div class="brand-marquee"><div><b v-for="(brand,index) in [...brands, ...brands]" :key="brand + index">{{ brand }}</b></div></div></section>
 
       <section class="section wrap" id="categories">
         <div class="section-head"><div><span class="eyebrow">პოპულარული არჩევანი</span><h2>იპოვე კატეგორიის მიხედვით</h2></div><a href="#" @click.prevent="openProductsPage('ყველა')">ყველა კატეგორია <ArrowRight :size="18" /></a></div>
